@@ -6,25 +6,25 @@
 
 using namespace std;
 
-typedef class List List;
-template <class T>
-class list
+template<typename T>
+class List
 {
-public:
-	enum list_error {
-		ESUCCESS = 0,
-	  EMALLOC,
-	  EFOUND,
-	  ESIZE
-	};
+    private:
+    struct node;
+    node* head, *tail;
+    size_t count;
+    public:
+    List();
+    ~List();
+    void addToHead(const T&);
+    void addToTail(const T&);
+    void showFromHead();
+    void showFromTail();
+    int search(const T&) const;
+    void eraseElementByVal(const T&);
+    void insert(const size_t&, const T&);
+    void sort(const bool& ascending = true);
 
-	list();
-	~list();
-
-private:
-	T item;
-	List *previous;
-  List *next;
 };
 
 
