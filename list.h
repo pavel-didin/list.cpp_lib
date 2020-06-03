@@ -1,31 +1,80 @@
-#ifndef _LIST_H_
-#define _LIST_H_
+#ifndef _STACK_H_
+#define _STACK_H_
 
 #include <cstring>
 #include <iostream>
 
 using namespace std;
 
-template<typename T>
+template <class T>
 class List
 {
-    private:
-    struct node;
-    node* head, *tail;
-    size_t count;
-    public:
-    List();
-    ~List();
-    void addToHead(const T&);
-    void addToTail(const T&);
-    void showFromHead();
-    void showFromTail();
-    int search(const T&) const;
-    void eraseElementByVal(const T&);
-    void insert(const size_t&, const T&);
-    void sort(const bool& ascending = true);
+    T item;
+    List<T> *previous;
+    List<T> *next;
+public:
+    enum LIST_ERR
+    {
+        EMALLOC,
+        EFOUND,
+        ESIZE,
+        EEMPTY
+    };
 
+    T get_item() const
+    {
+        return item;
+    }
+    List<T> *get_previous()
+    {
+        return previous;
+    }
+    List<T> *get_next()
+    {
+        return next;
+    }
+
+    void set_item(T new_item)
+    {
+        item = new_item;
+    }
+    void set_previous(List<T> *list)
+    {
+        previous = list;
+    }
+    void set_next(List<T> *list)
+    {
+        next = list;
+    }
+
+    List(T new_item);
+    //~List();
+
+    List<T> *append(T item);
+
+    List<T> *add(T item);
+
+    void destroy();
+
+    void reverse_print();
+
+    void print();
+
+    List<T> *delete_item(unsigned index);
+
+    List<T> *delete_first();
+
+    List<T> *delete_last();
+
+    List<T> *insert(unsigned index, T item);
+
+    int get(unsigned index);
+
+    void set(unsigned index, T item);
+
+    int find(T item);
+
+    unsigned size();
 };
 
-
-#endif  // _LIST_H_
+#endif	// _LIST_H_
