@@ -190,7 +190,7 @@ int main()
 
     try
     {
-        L->GetNode(0);
+        L->GetNode(1);
     }
     catch (...)
     {
@@ -277,12 +277,12 @@ int main()
     else
         cout << "Test_30\t->\tFAILED" << endl;
 
-    if(*L <= *T)
+    if(*L <= *T && !(*T <= *L))
         cout << "Test_31\t->\tFAILED" << endl;
     else
         cout << "Test_31\t->\tPASSED" << endl;
 
-    if(*L >= *T)
+    if(*L >= *T && *T <= *L && !(*T >= *L))
         cout << "Test_32\t->\tPASSED" << endl;
     else
         cout << "Test_32\t->\tFAILED" << endl;
@@ -302,7 +302,40 @@ int main()
 
     delete L;
     delete T;
-    delete &Sum;
+
+    List<int>* R = new List<int>;
+    try
+    {
+        R->Insert(0, -1);
+    }
+    catch (...)
+    {
+        cout << "Test_33\t->\tFAILED" << endl;
+    }
+    cout << "Test_33\t->\tPASSED" << endl;
+
+    try
+    {
+        R->Insert(0, -2);
+    }
+    catch (...)
+    {
+        cout << "Test_34\t->\tFAILED" << endl;
+    }
+    cout << "Test_34\t->\tPASSED" << endl;
+
+    try
+    {
+        R->DeleteFirst();
+	R->DeleteFirst();
+    }
+    catch (...)
+    {
+        cout << "Test_35\t->\tFAILED" << endl;
+    }
+    cout << "Test_35\t->\tPASSED" << endl;
+
+    delete R;
 
     return 0;
 }

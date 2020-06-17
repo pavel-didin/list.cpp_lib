@@ -128,7 +128,7 @@ void List<T>::Insert(unsigned index, T item)
 
     Node<T> * Ins = Head;
 
-    for(T i = 0; i < index; i++)
+    for(unsigned i = 0; i < index; i++)
     {
         Ins = Ins->next;
     }

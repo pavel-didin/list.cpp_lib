@@ -1,0 +1,84 @@
+        -:    0:Source:list.h
+        -:    0:Graph:tests.gcno
+        -:    0:Data:tests.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef _LIST_H_
+        -:    2:#define _LIST_H_
+        -:    3:
+        -:    4:#include <cstring>
+        -:    5:#include <iostream>
+        -:    6:
+        -:    7:using namespace std;
+        -:    8:
+        -:    9:template <class T>
+        -:   10:struct Node
+        -:   11:{
+        -:   12:    T data;
+        -:   13:    Node * next, * previous;
+        -:   14:};
+        -:   15:
+        -:   16:template <class T>
+        -:   17:class List
+        -:   18:{
+        -:   19:    Node<T> * Head, * Tail;
+        -:   20:
+        -:   21:    unsigned Count;
+        -:   22:
+        -:   23:public:
+        -:   24:    enum LIST_ERR
+        -:   25:    {
+        -:   26:        EEMPTY,
+        -:   27:        EMALLOC,
+        -:   28:        ESIZE
+        -:   29:    };
+        -:   30:    // Конструктор
+        -:   31:    List();
+        -:   32:    // Конструктор копирования
+        -:   33:    List(const List&);
+        -:   34:    // Деструктор
+        -:   35:    ~List();
+        -:   36:
+        -:   37:    // Получить количество элементов
+        7:   38:    unsigned GetCount() const { return Count; };
+        -:   39:    // Получить голову
+        3:   40:    Node<T>* GetHead() const { return Head; };
+        -:   41:    // Получить элемент списка
+        -:   42:    T GetNode(unsigned);
+        -:   43:
+        -:   44:    // Удалить конкретный элемент
+        -:   45:    void Delete(unsigned index);
+        -:   46:    //Удалить элемент из начала
+        -:   47:    void DeleteFirst();
+        -:   48:    //Удалить элемент с конца
+        -:   49:    void DeleteLast();
+        -:   50:    // Вставить элемент
+        -:   51:    void Insert(unsigned index, T item);
+        -:   52:    // Добавить элемент в конец списка
+        -:   53:    void AddTail(T item);
+        -:   54:    // Добавить элемент в начало списка
+        -:   55:    void AddHead(T item);
+        -:   56:    // Присваивание значение элементу
+        -:   57:    void SetNode(unsigned index, T item);
+        -:   58:
+        -:   59:    List& operator = (const List&);
+        -:   60:    // сложение двух списков (дописывание)
+        -:   61:    List operator + (const List&);
+        -:   62:
+        -:   63:    // сравнение по элементам
+        -:   64:    bool operator == (const List&);
+        -:   65:    bool operator != (const List&);
+        -:   66:    bool operator <= (const List&);
+        -:   67:    bool operator >= (const List&);
+        -:   68:    bool operator < (const List&);
+        -:   69:    bool operator > (const List&);
+        -:   70:
+        -:   71:    // разворот списка
+        -:   72:    List operator - ();
+        -:   73:
+        -:   74:    // печать сведений
+        -:   75:    template <class T1>
+        -:   76:    friend ostream &operator << (ostream &out, const List<T> &L);
+        -:   77:};
+        -:   78:
+        -:   79:#endif

@@ -1,0 +1,408 @@
+        -:    0:Source:list.cpp
+        -:    0:Graph:tests.gcno
+        -:    0:Data:tests.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "list.h"
+        -:    2:#include <stdlib.h>
+        -:    3:#include <unistd.h>
+        -:    4:
+        -:    5:template <class T>
+        3:    6:ostream &operator << (ostream &out, const List<T> &L)
+        -:    7:{
+        3:    8:    out << "size: " << L.GetCount() << endl;
+        3:    9:    out << "data: ";
+        3:   10:    if(L.GetCount())
+        -:   11:    {
+        3:   12:        Node<T> * node = L.GetHead();
+       57:   13:        while(node->next)
+        -:   14:        {
+       27:   15:            out << node->data << ", ";
+       27:   16:            node = node->next;
+        -:   17:        }
+        3:   18:        out << node->data << endl;
+        -:   19:    }
+        3:   20:    return out;
+        -:   21:};
+        -:   22:
+        -:   23:template <class T>
+        4:   24:List<T>::List()
+        -:   25:{
+        4:   26:    Head = Tail = NULL;
+        4:   27:    Count = 0;
+        4:   28:}
+        -:   29:
+        -:   30:template <class T>
+        2:   31:List<T>::List(const List<T> & L)
+        -:   32:{
+        2:   33:    Head = Tail = NULL;
+        2:   34:    Count = 0;
+        -:   35:
+        2:   36:    Node<T> * node = L.Head;
+        -:   37:
+       34:   38:    while(node)
+        -:   39:    {
+       16:   40:        AddTail(node->data);
+       16:   41:        node = node->next;
+        -:   42:    }
+        2:   43:}
+        -:   44:
+        -:   45:template <class T>
+       69:   46:List<T>::~List()
+        -:   47:{
+      130:   48:    while(Count)
+       61:   49:        Delete(0);
+        8:   50:}
+        -:   51:
+        -:   52:template <class T>
+       14:   53:void List<T>::AddHead(T item)
+        -:   54:{
+       14:   55:    Node<T> * node = new Node<T>;
+        -:   56:
+       14:   57:    if (node == NULL)
+        -:   58:    {
+    #####:   59:        cerr << "Not enough memory" << endl;
+    #####:   60:        throw EMALLOC;
+        -:   61:    }
+        -:   62:
+       14:   63:    node->previous = NULL;
+        -:   64:
+       14:   65:    node->data = item;
+        -:   66:
+       14:   67:    node->next = Head;
+        -:   68:
+       14:   69:    if(Head)
+       12:   70:        Head->previous = node;
+        -:   71:
+       14:   72:    Head = node;
+        -:   73:
+       14:   74:    if(Count == 0)
+        2:   75:        Tail = node;
+        -:   76:
+       14:   77:    Count++;
+       14:   78:}
+        -:   79:
+        -:   80:template <class T>
+       52:   81:void List<T>::AddTail(T item)
+        -:   82:{
+       52:   83:    Node<T> * node = new Node<T>;
+        -:   84:
+       52:   85:    if (node == NULL)
+        -:   86:    {
+    #####:   87:        cerr << "Not enough memory" << endl;
+    #####:   88:        throw EMALLOC;
+        -:   89:    }
+        -:   90:
+       52:   91:    node->next = NULL;
+        -:   92:
+       52:   93:    node->data = item;
+        -:   94:
+       52:   95:    node->previous = Tail;
+        -:   96:
+       52:   97:    if(Tail)
+       47:   98:        Tail->next = node;
+        -:   99:
+       52:  100:    Tail = node;
+        -:  101:
+       52:  102:    if(Count == 0)
+        5:  103:        Head = node;
+        -:  104:
+       52:  105:    Count++;
+       52:  106:}
+        -:  107:
+        -:  108:template <class T>
+        4:  109:void List<T>::Insert(unsigned index, T item)
+        -:  110:{
+        -:  111:
+        4:  112:    if(index > Count)
+        -:  113:    {
+        1:  114:        cerr << "Incorrect position !!!" << endl;
+        1:  115:        throw ESIZE;
+        -:  116:    }
+        -:  117:
+        3:  118:    if(index == Count)
+        -:  119:    {
+        1:  120:        AddTail(item);
+        1:  121:        return;
+        -:  122:    }
+        2:  123:    if(index == 0)
+        -:  124:    {
+        1:  125:        AddHead(item);
+        1:  126:        return;
+        -:  127:    }
+        -:  128:
+        1:  129:    Node<T> * Ins = Head;
+        -:  130:
+        3:  131:    for(unsigned i = 0; i < index; i++)
+        -:  132:    {
+        2:  133:        Ins = Ins->next;
+        -:  134:    }
+        -:  135:
+        1:  136:    Node<T> * PrevIns = Ins->previous;
+        -:  137:
+        1:  138:    Node<T> * node = new Node<T>;
+        1:  139:    if (node == NULL)
+        -:  140:    {
+    #####:  141:        cerr << "Not enough memory" << endl;
+    #####:  142:        throw EMALLOC;
+        -:  143:    }
+        1:  144:    node->data = item;
+        -:  145:
+        1:  146:    PrevIns->next = node;
+        1:  147:    node->next = Ins;
+        1:  148:    node->previous = PrevIns;
+        1:  149:    Ins->previous = node;
+        -:  150:
+        1:  151:    Count++;
+        -:  152:}
+        -:  153:
+        -:  154:template <class T>
+       59:  155:void List<T>::DeleteFirst()
+        -:  156:{
+       59:  157:    if(Count == 0)
+        -:  158:    {
+        1:  159:        cerr << "List is empty" << endl;
+        1:  160:        throw EEMPTY;
+        -:  161:    }
+       58:  162:    Node<T> *node = Head;
+       58:  163:    Head = Head->next;
+       58:  164:    if (Head)
+       57:  165:        Head->previous = NULL;
+        -:  166:    else
+        1:  167:        Tail = NULL;
+       58:  168:    delete node;
+       58:  169:    Count--;
+       58:  170:}
+        -:  171:
+        -:  172:template <class T>
+        9:  173:void List<T>::DeleteLast()
+        -:  174:{
+        9:  175:    if(Count == 0)
+        -:  176:    {
+        1:  177:        cerr << "List is empty" << endl;
+        1:  178:        throw EEMPTY;
+        -:  179:    }
+        8:  180:    Node<T> *node = Tail;
+        8:  181:    Tail = Tail->previous;
+        8:  182:    if (Tail)
+        2:  183:        Tail->next = NULL;
+        -:  184:    else
+        6:  185:        Head = NULL;
+        8:  186:    delete node;
+        8:  187:    Count--;
+        8:  188:}
+        -:  189:
+        -:  190:template <class T>
+       64:  191:void List<T>::Delete(unsigned index)
+        -:  192:{
+       64:  193:    if(Count == 0)
+        -:  194:    {
+        1:  195:        cerr << "List is empty" << endl;
+        1:  196:        throw EEMPTY;
+        -:  197:    }
+       63:  198:    if(index > Count-1)
+        -:  199:    {
+        1:  200:        cerr << "Incorrect position !!!" << endl;
+        1:  201:        throw ESIZE;
+        -:  202:    }
+        -:  203:
+       62:  204:    if(index == Count-1)
+        -:  205:    {
+        6:  206:        DeleteLast();
+        6:  207:        return;
+        -:  208:    }
+        -:  209:
+       56:  210:    if(index == 0)
+        -:  211:    {
+       55:  212:        DeleteFirst();
+       55:  213:        return;
+        -:  214:    }
+        -:  215:
+        1:  216:    Node<T> * Del = Head;
+        -:  217:
+        3:  218:    for(unsigned i = 0; i < index; i++)
+        -:  219:    {
+        2:  220:        Del = Del->next;
+        -:  221:    }
+        -:  222:
+        1:  223:    Node<T> * PrevDel = Del->previous;
+        1:  224:    Node<T> * AfterDel = Del->next;
+        -:  225:
+        1:  226:    PrevDel->next = AfterDel;
+        1:  227:    AfterDel->previous = PrevDel;
+        -:  228:
+        1:  229:    delete Del;
+        -:  230:
+        1:  231:    Count--;
+        -:  232:}
+        -:  233:
+        -:  234:template <class T>
+        4:  235:void List<T>::SetNode(unsigned index, T item)
+        -:  236:{
+        4:  237:    if(Count == 0)
+        -:  238:    {
+        1:  239:        cerr << "List is empty" << endl;
+        1:  240:        throw EEMPTY;
+        -:  241:    }
+        3:  242:    if(index > Count-1)
+        -:  243:    {
+        1:  244:        cerr << "Incorrect position !!!" << endl;
+        1:  245:        throw ESIZE;
+        -:  246:    }
+        -:  247:
+        2:  248:    Node<T> *node = Head;
+        -:  249:
+       10:  250:    for(unsigned i = 0; i < index; i++)
+        -:  251:    {
+        8:  252:        node = node->next;
+        -:  253:    }
+        -:  254:
+        2:  255:    node->data = item;
+        2:  256:}
+        -:  257:
+        -:  258:template <class T>
+        3:  259:T List<T>::GetNode(unsigned index)
+        -:  260:{
+        3:  261:    Node<T> *node = Head;
+        -:  262:
+        3:  263:    if(Count == 0)
+        -:  264:    {
+        1:  265:        cerr << "List is empty" << endl;
+        1:  266:        throw EEMPTY;
+        -:  267:    }
+        -:  268:
+        2:  269:    if(index > Count-1)
+        -:  270:    {
+        1:  271:        cerr << "Incorrect position !!!" << endl;
+        1:  272:        throw ESIZE;
+        -:  273:    }
+        -:  274:
+        2:  275:    for(unsigned i = 0; i < index; i++)
+        -:  276:    {
+        1:  277:        node = node->next;
+        -:  278:    }
+        -:  279:
+        1:  280:    return node->data;
+        -:  281:}
+        -:  282:
+        -:  283:template <class T>
+        3:  284:List<T> & List<T>::operator = (const List<T> & L)
+        -:  285:{
+        3:  286:    if(this == &L)
+        1:  287:        return *this;
+        -:  288:
+        2:  289:    this->~List();
+        -:  290:
+        2:  291:    Node<T> * node = L.Head;
+        -:  292:
+       48:  293:    while(node)
+        -:  294:    {
+       23:  295:        AddTail(node->data);
+       23:  296:        node = node->next;
+        -:  297:    }
+        -:  298:
+        2:  299:    return *this;
+        -:  300:}
+        -:  301:
+        -:  302:template <class T>
+        1:  303:List<T> List<T>::operator + (const List<T>& L)
+        -:  304:{
+        1:  305:    List Result(*this);
+        -:  306:
+        1:  307:    Node<T> * node = L.Head;
+        -:  308:
+       15:  309:    while(node)
+        -:  310:    {
+        7:  311:        Result.AddTail(node->data);
+        7:  312:        node = node->next;
+        -:  313:    }
+        -:  314:
+        1:  315:    return Result;
+        -:  316:}
+        -:  317:
+        -:  318:template <class T>
+        6:  319:bool List<T>::operator == (const List<T> & L)
+        -:  320:{
+        6:  321:    if(Count != L.Count)
+        3:  322:        return false;
+        -:  323:
+        -:  324:    Node<T> *t1, *t2;
+        -:  325:
+        3:  326:    t1 = Head;
+        3:  327:    t2 = L.Head;
+        -:  328:
+       49:  329:    while(t1)
+        -:  330:    {
+       24:  331:        if(t1->data != t2->data)
+        1:  332:            return false;
+        -:  333:
+       23:  334:        t1 = t1->next;
+       23:  335:        t2 = t2->next;
+        -:  336:    }
+        -:  337:
+        2:  338:    return true;
+        -:  339:}
+        -:  340:
+        -:  341:template <class T>
+        2:  342:bool List<T>::operator != (const List<T> & L)
+        -:  343:{
+        2:  344:    return !(*this == L);
+        -:  345:}
+        -:  346:
+        -:  347:template <class T>
+        3:  348:bool List<T>::operator >= (const List<T>& L)
+        -:  349:{
+        3:  350:    if(Count > L.Count)
+        1:  351:        return true;
+        -:  352:
+        2:  353:    if(*this == L)
+        1:  354:        return true;
+        -:  355:
+        1:  356:    return false;
+        -:  357:}
+        -:  358:
+        -:  359:template <class T>
+        3:  360:bool List<T>::operator <= (const List<T>& L)
+        -:  361:{
+        3:  362:    if(Count < L.Count)
+        1:  363:        return true;
+        -:  364:
+        2:  365:    if(*this == L)
+        1:  366:        return true;
+        -:  367:
+        1:  368:    return false;
+        -:  369:}
+        -:  370:
+        -:  371:template <class T>
+        -:  372:bool List<T>::operator > (const List<T>& L)
+        -:  373:{
+        -:  374:    if(Count > L.Count)
+        -:  375:        return true;
+        -:  376:
+        -:  377:    return false;
+        -:  378:}
+        -:  379:
+        -:  380:template <class T>
+        -:  381:bool List<T>::operator < (const List<T>& L)
+        -:  382:{
+        -:  383:    if(Count < L.Count)
+        -:  384:        return true;
+        -:  385:
+        -:  386:    return false;
+        -:  387:}
+        -:  388:
+        -:  389:template <class T>
+        1:  390:List<T> List<T>::operator - ()
+        -:  391:{
+        1:  392:    List Result;
+        -:  393:
+        1:  394:    Node<T> * temp = Head;
+        -:  395:
+       17:  396:    while(temp != 0)
+        -:  397:    {
+        8:  398:        Result.AddHead(temp->data);
+        8:  399:        temp = temp->next;
+        -:  400:    }
+        -:  401:
+        1:  402:    return Result;
+        -:  403:}
