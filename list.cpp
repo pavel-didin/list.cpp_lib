@@ -2,283 +2,402 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define NOT_FOUND -1
-
 template <class T>
-List<T>* List<T>::append(T item)
+ostream &operator << (ostream &out, const List<T> &L)
 {
-    //create list item
-    List<T> *new_item = new List(item);
-    if (new_item == NULL)
+    out << "size: " << L.GetCount() << endl;
+    out << "data: ";
+    if(L.GetCount())
     {
-        cerr << "Not enough memory" << endl;
-        throw EMALLOC;
-        return this;
-    }
-    //new_item->set_item(item);
-    //new_item->set_next(NULL);
-    //new_item->set_previous(NULL);
-    if (this)
-    {
-        List<T> *list;
-        //go to the end
-        for (list = this; list->get_next(); list = list->get_next());
-        list->set_next(new_item); //append
-        new_item->set_previous(list);
-    }
-    else
-    {
-        return new_item; //init (create) list
-    }
-    return this;
-}
-
-template <class T>
-List<T>* List<T>::add(T item)
-{
-    //create list item
-    List<T> *new_item = new List(item);
-    if (new_item == NULL)
-    {
-        cerr << "Not enough memory" << endl;
-        throw EMALLOC;
-        return this;
-    }
-    //new_item->set_item(item);
-    //new_item->set_previous(NULL);
-    new_item->set_next(this);
-    if (this)
-        this->set_previous(new_item);
-    return new_item;
-}
-
-template <class T>
-void List<T>::destroy()
-{
-    if (this == NULL)
-    {
-        cerr << "List is empty" << endl;
-        throw EEMPTY;
-        return;
-    }
-    List<T> *list = this;
-    while (list)
-    {
-        List<T> *list1 = list;
-        list = list->get_next();
-        delete list1;
-    }
-}
-
-template <class T>
-void List<T>::reverse_print()
-{
-    List<T> *list = this;
-    if (this == NULL)
-    {
-        cerr << "List is empty" << endl;
-        throw EEMPTY;
-    }
-    for ( ; list->get_next(); list = list->get_next());
-    for ( ; list; list = list->get_previous())
-        cout << list->get_item()<<" ";
-    cout << endl;
-}
-
-template <class T>
-void List<T>::print()
-{
-    List<T> *list = this;
-    for ( ; list; list = list->get_next())
-        cout << list->get_item()<<" ";
-    cout << endl;
-}
-
-template <class T>
-List<T>* List<T>::delete_item(unsigned index)
-{
-    List<T> *list = this;
-    unsigned i;
-    if (this == NULL)
-    {
-        cerr << "List is empty" << endl;
-        throw EEMPTY;
-        return this;
-    }
-    for (i = 0; i < index; i++)
-    {
-        if (!list->get_next())
+        Node<T> * node = L.GetHead();
+        while(node->next)
         {
-            cerr << "Invalig size: List" << endl;
-            throw ESIZE;
-            return this;
+            out << node->data << ", ";
+            node = node->next;
         }
-        list = list->get_next();
+        out << node->data << endl;
     }
-    if (list->get_previous())
-        list->get_previous()->set_next(list->get_next());
-    else
-        list = list->get_next();
-    if (list->get_next())
-        list->get_next()->set_previous(list->get_previous());
-    delete list;
-    return this;
+    return out;
+};
+
+template <class T>
+List<T>::List()
+{
+    Head = Tail = NULL;
+    Count = 0;
 }
 
 template <class T>
-List<T>* List<T>::delete_first()
+List<T>::List(const List<T> & L)
 {
-    List<T> *list = this;
-    if (this == NULL)
+    Head = Tail = NULL;
+    Count = 0;
+
+    Node<T> * node = L.Head;
+
+    while(node)
     {
-        cerr << "List is empty" << endl;
-        throw EEMPTY;
-        return this;
+        AddTail(node->data);
+        node = node->next;
     }
-    list = list->get_next();
-    if (list)
-        list->set_previous(NULL);
-    delete this;
-    return list;
 }
 
 template <class T>
-List<T>* List<T>::delete_last()
+List<T>::~List()
 {
-    List<T> *list = this;
-    if (this == NULL)
-    {
-        cerr << "List is empty" << endl;
-        throw EEMPTY;
-        return this;
-    }
-    if (!this->get_next())
-    {
-        delete this;
-        return NULL;
-    }
-    for ( ; list->get_next(); list = list->get_next());
-    if (list->get_previous())
-        list->get_previous()->set_next(NULL);
-    delete list;
-    return this;
+    while(Count)
+        Delete(0);
 }
 
 template <class T>
-List<T>* List<T>::insert(unsigned index, T item)
+void List<T>::AddHead(T item)
 {
-    List<T> *list = this, *new_item;
-    unsigned i;
-    if (!this && index)
+    Node<T> * node = new Node<T>;
+
+    if (node == NULL)
     {
-        cerr << "Invalig size: List" << endl;
+        cerr << "Not enough memory" << endl;
+        throw EMALLOC;
+    }
+
+    node->previous = NULL;
+
+    node->data = item;
+
+    node->next = Head;
+
+    if(Head)
+        Head->previous = node;
+
+    Head = node;
+
+    if(Count == 0)
+        Tail = node;
+
+    Count++;
+}
+
+template <class T>
+void List<T>::AddTail(T item)
+{
+    Node<T> * node = new Node<T>;
+
+    if (node == NULL)
+    {
+        cerr << "Not enough memory" << endl;
+        throw EMALLOC;
+    }
+
+    node->next = NULL;
+
+    node->data = item;
+
+    node->previous = Tail;
+
+    if(Tail)
+        Tail->next = node;
+
+    Tail = node;
+
+    if(Count == 0)
+        Head = node;
+
+    Count++;
+}
+
+template <class T>
+void List<T>::Insert(unsigned index, T item)
+{
+
+    if(index > Count)
+    {
+        cerr << "Incorrect position !!!" << endl;
         throw ESIZE;
-        return this;
     }
-    if (!this || !index)
-        return add(item);
-    for (i = 0; i < index-1; i++)
+
+    if(index == Count)
     {
-        list = list->get_next();
-        if (!list)
-        {
-            cerr << "Invalig size: List" << endl;
-            throw ESIZE;
-            return this;
-        }
+        AddTail(item);
+        return;
     }
-    new_item = new List(item);
-    if (list == NULL)
+    if(index == 0)
+    {
+        AddHead(item);
+        return;
+    }
+
+    Node<T> * Ins = Head;
+
+    for(T i = 0; i < index; i++)
+    {
+        Ins = Ins->next;
+    }
+
+    Node<T> * PrevIns = Ins->previous;
+
+    Node<T> * node = new Node<T>;
+    if (node == NULL)
     {
         cerr << "Not enough memory" << endl;
         throw EMALLOC;
-        return this;
     }
-    //new_item->set_item(item);
-    new_item->set_next(list->get_next());
-    new_item->set_previous(list);
-    if (list->get_next())
-        list->get_next()->set_previous(new_item);
-    list->set_next(new_item);
-    return this;
+    node->data = item;
+
+    PrevIns->next = node;
+    node->next = Ins;
+    node->previous = PrevIns;
+    Ins->previous = node;
+
+    Count++;
 }
 
 template <class T>
-int List<T>::get(unsigned index)
+void List<T>::DeleteFirst()
 {
-    unsigned i;
-    List<T> *list = this;
-    if (this == NULL)
+    if(Count == 0)
     {
         cerr << "List is empty" << endl;
         throw EEMPTY;
-        return NOT_FOUND;
     }
-    for (i = 0; list; list = list->get_next(), i++)
-        if (i == index)
-        {
-            return list->get_item();
-        }
-    cerr << "Invalig size: List" << endl;
-    throw ESIZE;
-    return NOT_FOUND;
+    Node<T> *node = Head;
+    Head = Head->next;
+    if (Head)
+        Head->previous = NULL;
+    else
+        Tail = NULL;
+    delete node;
+    Count--;
 }
 
 template <class T>
-void List<T>::set(unsigned index, T item)
+void List<T>::DeleteLast()
 {
-    unsigned i;
-    List<T> *list = this;
-    if (this == NULL)
+    if(Count == 0)
     {
         cerr << "List is empty" << endl;
         throw EEMPTY;
+    }
+    Node<T> *node = Tail;
+    Tail = Tail->previous;
+    if (Tail)
+        Tail->next = NULL;
+    else
+        Head = NULL;
+    delete node;
+    Count--;
+}
+
+template <class T>
+void List<T>::Delete(unsigned index)
+{
+    if(Count == 0)
+    {
+        cerr << "List is empty" << endl;
+        throw EEMPTY;
+    }
+    if(index > Count-1)
+    {
+        cerr << "Incorrect position !!!" << endl;
+        throw ESIZE;
+    }
+
+    if(index == Count-1)
+    {
+        DeleteLast();
         return;
     }
-    for (i = 0; list; list = list->get_next(), i++)
-        if (i == index)
-        {
-            list->set_item(item);
-            return;
-        }
-    cerr << "Invalig size: List" << endl;
-    throw ESIZE;
+
+    if(index == 0)
+    {
+        DeleteFirst();
+        return;
+    }
+
+    Node<T> * Del = Head;
+
+    for(unsigned i = 0; i < index; i++)
+    {
+        Del = Del->next;
+    }
+
+    Node<T> * PrevDel = Del->previous;
+    Node<T> * AfterDel = Del->next;
+
+    PrevDel->next = AfterDel;
+    AfterDel->previous = PrevDel;
+
+    delete Del;
+
+    Count--;
 }
 
-template<class T>
-int List<T>::find(T item)
+template <class T>
+void List<T>::SetNode(unsigned index, T item)
 {
-    unsigned i;
-    List<T> *list = this;
-    if (this == NULL)
+    if(Count == 0)
     {
         cerr << "List is empty" << endl;
         throw EEMPTY;
-        return NOT_FOUND;
     }
-    for (i = 0; list; list = list->get_next(), i++)
-        if (list->get_item() == item)
-        {
-            return i;
-        }
-    cerr << "Not found: List" << endl;
-    throw EFOUND;
-    return NOT_FOUND;
+    if(index > Count-1)
+    {
+        cerr << "Incorrect position !!!" << endl;
+        throw ESIZE;
+    }
+
+    Node<T> *node = Head;
+
+    for(unsigned i = 0; i < index; i++)
+    {
+        node = node->next;
+    }
+
+    node->data = item;
 }
 
 template <class T>
-unsigned List<T>::size()
+T List<T>::GetNode(unsigned index)
 {
-    unsigned i;
-    List<T> *list = this;
-    for(i = 0; list; list = list->get_next(), i++);
-    return i;
+    Node<T> *node = Head;
+
+    if(Count == 0)
+    {
+        cerr << "List is empty" << endl;
+        throw EEMPTY;
+    }
+
+    if(index > Count-1)
+    {
+        cerr << "Incorrect position !!!" << endl;
+        throw ESIZE;
+    }
+
+    for(unsigned i = 0; i < index; i++)
+    {
+        node = node->next;
+    }
+
+    return node->data;
 }
 
 template <class T>
-List<T>::List(T new_item)
+List<T> & List<T>::operator = (const List<T> & L)
 {
-    previous = NULL;
-    next = NULL;
-    item = new_item;
+    if(this == &L)
+        return *this;
+
+    this->~List();
+
+    Node<T> * node = L.Head;
+
+    while(node)
+    {
+        AddTail(node->data);
+        node = node->next;
+    }
+
+    return *this;
+}
+
+template <class T>
+List<T> List<T>::operator + (const List<T>& L)
+{
+    List Result(*this);
+
+    Node<T> * node = L.Head;
+
+    while(node)
+    {
+        Result.AddTail(node->data);
+        node = node->next;
+    }
+
+    return Result;
+}
+
+template <class T>
+bool List<T>::operator == (const List<T> & L)
+{
+    if(Count != L.Count)
+        return false;
+
+    Node<T> *t1, *t2;
+
+    t1 = Head;
+    t2 = L.Head;
+
+    while(t1)
+    {
+        if(t1->data != t2->data)
+            return false;
+
+        t1 = t1->next;
+        t2 = t2->next;
+    }
+
+    return true;
+}
+
+template <class T>
+bool List<T>::operator != (const List<T> & L)
+{
+    return !(*this == L);
+}
+
+template <class T>
+bool List<T>::operator >= (const List<T>& L)
+{
+    if(Count > L.Count)
+        return true;
+
+    if(*this == L)
+        return true;
+
+    return false;
+}
+
+template <class T>
+bool List<T>::operator <= (const List<T>& L)
+{
+    if(Count < L.Count)
+        return true;
+
+    if(*this == L)
+        return true;
+
+    return false;
+}
+
+template <class T>
+bool List<T>::operator > (const List<T>& L)
+{
+    if(Count > L.Count)
+        return true;
+
+    return false;
+}
+
+template <class T>
+bool List<T>::operator < (const List<T>& L)
+{
+    if(Count < L.Count)
+        return true;
+
+    return false;
+}
+
+template <class T>
+List<T> List<T>::operator - ()
+{
+    List Result;
+
+    Node<T> * temp = Head;
+
+    while(temp != 0)
+    {
+        Result.AddHead(temp->data);
+        temp = temp->next;
+    }
+
+    return Result;
 }
